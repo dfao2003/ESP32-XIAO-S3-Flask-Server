@@ -1,32 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     <meta charset="UTF-8">
-     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <style>
-          .container{
-               margin: 0;
-               padding: 0;
-               width: 100%;
-               height: 100vh;
-               background-color: #f1f1bc;
-               color: black;
-               text-align: center;
-          }
-          .containerHeader{
-               display: flex;
-               flex-direction: column;
-               align-items: center;
-          }
-     </style>
-     <title>Videostreaming ESP32-CAM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videostreaming ESP32-CAM</title>
+    <style>
+        .slider-container {
+            margin: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        .container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #f1f1bc;
+            color: black;
+            text-align: center;
+        }
+
+        .containerHeader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .contTrac{
+          display: flex;
+          flex-direction: row;
+          background-color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .contSalPimienta{
+          width: 50%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .contFiltros{
+          width: 50%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+
+        form {
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          padding: 20px;
+          width: 100%;
+          max-width: 300px;
+          margin: 40px auto;
+        }
+
+        h1 {
+          text-align: center;
+          color: #333;
+          font-size: 24px;
+        }
+
+          /* Styling for labels */
+        label {
+          font-size: 16px;
+          color: #333;
+          display: block;
+          margin-bottom: 8px;
+        }
+
+
+        select {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 14px;
+          background-color: #fafafa;
+        }
+
+        button {
+          width: 100%;
+          padding: 12px;
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+          background-color: #45a049;
+        }
+
+        button:active {
+          background-color: #388e3c;
+        }
+
+        select:not(:last-child) {
+          margin-bottom: 20px;
+        }
+
+        form > * {
+          margin-bottom: 15px;
+        }
+
+        .contImagRayX{
+          display: flex;
+          flex-wrap: wrap;
+          width: 100%;
+          gap:25px;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .imagen{
+          background-color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
 </head>
-<body class = "container">
-     <div class="containerHeader">
-          <h1>Video Streaming</h1>
-          <img src="{{ url_for('static', filename='Header.webp') }}" alt="Image header" width="50%">
-     </div>
-     <img src="{{ url_for('video_stream') }}">
+<body class="container">
+    <div class="containerHeader">
+        <h1>Streaming</h1>
+        <img src="{{ url_for('static', filename='Header.webp') }}" alt="Image header" width="50%">
+    </div>
+    <h1>Parte 1</h1>
+    <img src="{{ url_for('video_stream') }}" style="width: 100%;" />
+    <div class="contTrac">
+          <div class="contSalPimienta">
+               <!-- Slider para el nivel de sal -->
+               <div class="slider-container">
+                    <label for="sal-slider">Nivel de Sal</label>
+                    <input type="range" id="sal-slider" min="0" max="1000" value="0">
+                    <span id="sal-value">0</span>
+               </div>
+
+               <!-- Slider para el nivel de pimienta -->
+               <div class="slider-container">
+                    <label for="pepper-slider">Nivel de Pimienta</label>
+                    <input type="range" id="pepper-slider" min="0" max="1000" value="0">
+                    <span id="pepper-value">0</span>
+               </div>
+          </div>
+          <div class="contFiltros">
+               <!-- Sliders para los filtros -->
+               <div class="slider-container">
+                    <label for="median-slider">Tamaño de Kernel de Mediana</label>
+                    <input type="range" id="median-slider" min="0" max="2" value="0">
+                    <span id="median-value">3</span>
+               </div>
+
+               <div class="slider-container">
+                    <label for="blur-slider">Tamaño de Kernel de Desenfoque</label>
+                    <input type="range" id="blur-slider" min="0" max="2" value="0">
+                    <span id="blur-value">3</span>
+                </div>
+            
+                <div class="slider-container">
+                    <label for="gaussian-slider">Tamaño de Kernel Gaussiano</label>
+                    <input type="range" id="gaussian-slider" min="0" max="2" value="0">
+                    <span id="gaussian-value">3</span>
+                </div>
+          </div>
+    </div>
+
+    <h1>Parte 2</h1>
+    <div class="part2">
+     <form action="/apply_operations" method="POST">
+          <label for="image_name">Seleccionar imagen:</label>
+          <select name="image_name" id="image_name">
+              <option value="person1_virus_6.jpeg">Imagen 1</option>
+              <option value="person1_virus_7.jpeg">Imagen 2</option>
+              <option value="person1_virus_6.jpeg">Imagen 3</option>
+          </select>
+  
+          <label for="mask_size">Seleccionar tamaño de máscara:</label>
+          <select name="mask_size" id="mask_size">
+              <option value="37">37x37</option>
+              <option value="55">55x55</option>
+              <option value="75">75x75</option>
+          </select>
+          <button type="submit">Aplicar Operaciones</button>
+      </form>
+  
+      {% if result_files %}
+      <h2>Resultados</h2>
+      <h3>Imagen Original: {{ image_name }}</h3>
+     <img src="{{ url_for('uploaded_file', filename=image_name) }}" width="300">
+     
+     <h3>Operaciones Morfológicas:</h3>
+      <div class="contImagRayX">
+          <div class="imagen">
+               <h4>Erosión</h4>
+               <img src="{{ url_for('uploaded_file', filename=result_files['erosion']) }}" width="300">
+          </div>
+          <div class="imagen">
+               <h4>Dilatación</h4>
+               <img src="{{ url_for('uploaded_file', filename=result_files['dilation']) }}" width="300">
+          </div>
+          <div class="imagen">
+               <h4>Top Hat</h4>
+               <img src="{{ url_for('uploaded_file', filename=result_files['tophat']) }}" width="300">
+          </div>
+          <div class="imagen">
+               <h4>Black Hat</h4>
+               <img src="{{ url_for('uploaded_file', filename=result_files['blackhat']) }}" width="300">
+          </div>
+          <div class="imagen">
+               <h4>Combinadal</h4>
+               <img src="{{ url_for('uploaded_file', filename=result_files['combined']) }}" width="300">
+          </div>
+      </div>
+      {% endif %}
+    </div>
+
+
+    <script>
+        const salSlider = document.getElementById("sal-slider");
+        const pepperSlider = document.getElementById("pepper-slider");
+        const salValue = document.getElementById("sal-value");
+        const pepperValue = document.getElementById("pepper-value");
+
+        // Sliders para los filtros
+        const medianSlider = document.getElementById("median-slider");
+        const blurSlider = document.getElementById("blur-slider");
+        const gaussianSlider = document.getElementById("gaussian-slider");
+
+        const medianValue = document.getElementById("median-value");
+        const blurValue = document.getElementById("blur-value");
+        const gaussianValue = document.getElementById("gaussian-value");
+
+        salSlider.oninput = function() {
+            salValue.innerText = this.value;
+            updateNoise();
+        };
+
+        pepperSlider.oninput = function() {
+            pepperValue.innerText = this.value;
+            updateNoise();
+        };
+
+        // Actualizar los valores de los filtros
+        medianSlider.oninput = function() {
+            let value = parseInt(this.value);
+            // Ajustar el valor a 3, 5 o 7
+            medianValue.innerText = [3, 5, 7][value];
+            updateFilters();
+        };
+
+        blurSlider.oninput = function() {
+            let value = parseInt(this.value);
+            // Ajustar el valor a 3, 5 o 7
+            blurValue.innerText = [3, 5, 7][value];
+            updateFilters();
+        };
+
+        gaussianSlider.oninput = function() {
+            let value = parseInt(this.value);
+            // Ajustar el valor a 3, 5 o 7
+            gaussianValue.innerText = [3, 5, 7][value];
+            updateFilters();
+        };
+
+        function updateNoise() {
+            fetch("/update_noise", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `sal=${salSlider.value}&pimienta=${pepperSlider.value}`
+            }).then(response => {
+                if (!response.ok) {
+                    console.error("Error al actualizar los niveles de ruido.");
+                }
+            }).catch(error => {
+                console.error("Error de red:", error);
+            });
+        }
+
+        function updateFilters() {
+            fetch("/update_filters", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `median=${medianSlider.value}&blur=${blurSlider.value}&gaussian=${gaussianSlider.value}`
+            }).then(response => {
+                if (!response.ok) {
+                    console.error("Error al actualizar los filtros.");
+                }
+            }).catch(error => {
+                console.error("Error de red:", error);
+            });
+        }
+    </script>
 </body>
 </html>
